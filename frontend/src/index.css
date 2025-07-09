@@ -1,0 +1,7 @@
+/* src/index.css */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #121212; /* Optional: dark background */
+  color: white; /* Optional: default text color */
+}
