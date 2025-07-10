@@ -15,7 +15,6 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-// ✅ Custom Tooltip Component (place this near the top of Dashboard.jsx)
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -26,8 +25,8 @@ const CustomTooltip = ({ active, payload, label }) => {
         borderRadius: "10px",
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)"
       }}>
-        <p className="mb-1 font-semibold">{label}</p>
-        <p>${payload[0].value}</p>
+        <p className="mb-1 fw-bold">{label}</p>
+        <p className="mb-0">${payload[0].value}</p>
       </div>
     );
   }
@@ -57,108 +56,121 @@ export default function Dashboard() {
 
   const pieColors = ["#0d6efd", "#6610f2", "#198754"];
 
+  const cardStyle = {
+  background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))",
+  backdropFilter: "blur(30px)",
+  WebkitBackdropFilter: "blur(30px)",
+  borderRadius: "2rem",
+  border: "1px solid rgba(255, 255, 255, 0.15)",
+  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6)",
+  color: "#fff",
+  padding: "1.5rem",
+};
+
   return (
-    <Container className="mt-4">
-        <div style={{ backgroundColor: "#121212", minHeight: "100vh", color: "white" }}>
-        <Container fluid className="py-5">
-            <h1 className="mb-4 text-center">Dashboard Overview</h1>
+    <div
+      className="container py-4"
+      style={{
+        minHeight: "100vh",
+      }}
+    >
+        <Container fluid style={{minHeight: "100vh", color: "white", paddingTop: "2rem" }}>
+        <h1 className="mb-5 text-center">Dashboard Overview</h1>
 
-            <Row className="mb-4">
-            <Col md={4}>
-                <Card bg="dark" text="light" className="shadow">
+        <Row className="mb-4">
+            <Col md={4} className="mb-4 mb-md-0">
+            <Card style={cardStyle} text="light" className="glass-card rounded-4 text-center">
                 <Card.Body>
-                    <Card.Title>Total Balance</Card.Title>
-                    <Card.Text className="fs-3">$7,800</Card.Text>
+                <Card.Title>Total Balance</Card.Title>
+                <Card.Text className="fs-3 text-center">$7,800</Card.Text>
                 </Card.Body>
-                </Card>
+            </Card>
+            </Col>
+            <Col md={4} className="mb-4 mb-md-0">
+            <Card style={cardStyle} text="light" className=" glass-card rounded-4 text-center">
+                <Card.Body>
+                <Card.Title>Total Expenses</Card.Title>
+                <Card.Text className="fs-3 text-center">$1,200</Card.Text>
+                </Card.Body>
+            </Card>
             </Col>
             <Col md={4}>
-                <Card bg="dark" text="light" className="shadow">
+            <Card style={cardStyle} text="light" className="glass-card rounded-4 text-center">
                 <Card.Body>
-                    <Card.Title>Total Expenses</Card.Title>
-                    <Card.Text className="fs-3">$1,200</Card.Text>
+                <Card.Title>Total Savings</Card.Title>
+                <Card.Text className="fs-3 text-center">$3,400</Card.Text>
                 </Card.Body>
-                </Card>
+            </Card>
             </Col>
-            <Col md={4}>
-                <Card bg="dark" text="light" className="shadow">
-                <Card.Body>
-                    <Card.Title>Total Savings</Card.Title>
-                    <Card.Text className="fs-3">$3,400</Card.Text>
-                </Card.Body>
-                </Card>
-            </Col>
-            </Row>
+        </Row>
 
-            <Row className="mb-4">
+        <Row className="mb-4">
             <Col md={6}>
-                <Card bg="dark" text="light" className="shadow">
+            <Card style={cardStyle} text="light" className="glass-card rounded-4 mb-4 mb-md-0">
                 <Card.Body>
-                    <Card.Title>Yearly Balance (Bar Chart)</Card.Title>
-                    <ResponsiveContainer width="100%" height={250}>
-                        <BarChart data={barData}>
-                            <XAxis dataKey="name" stroke="#ccc" />
-                            <YAxis stroke="#ccc" />
-                            <Tooltip />
-                            <Bar dataKey="balance" radius={[4, 4, 0, 0]}>
-                            {barData.map((entry, index) => (
-                                <Cell key={`bar-${index}`} fill={barColors[index % barColors.length]} />
-                            ))}
-                            </Bar>
-                        </BarChart>
-                    </ResponsiveContainer>
+                <Card.Title>Yearly Balance (Bar Chart)</Card.Title>
+                <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={barData}>
+                    <XAxis dataKey="name" stroke="#ccc" />
+                    <YAxis stroke="#ccc" />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar dataKey="balance" radius={[4, 4, 0, 0]}>
+                        {barData.map((entry, index) => (
+                        <Cell key={`bar-${index}`} fill={barColors[index % barColors.length]} />
+                        ))}
+                    </Bar>
+                    </BarChart>
+                </ResponsiveContainer>
                 </Card.Body>
-                </Card>
+            </Card>
             </Col>
 
             <Col md={6}>
-                <Card bg="dark" text="light" className="shadow">
+            <Card style={cardStyle} text="light" className="glass-card rounded-4">
                 <Card.Body>
-                    <Card.Title>Monthly Savings (Line Chart)</Card.Title>
-                    <ResponsiveContainer width="100%" height={250}>
+                <Card.Title>Monthly Savings (Line Chart)</Card.Title>
+                <ResponsiveContainer width="100%" height={250}>
                     <LineChart data={lineData}>
-                        <XAxis dataKey="month" stroke="#ccc" />
-                        <YAxis stroke="#ccc" />
-                        <Tooltip content={<CustomTooltip />} />
-                        <Line type="monotone" dataKey="savings" stroke="#198754" strokeWidth={2} />
+                    <XAxis dataKey="month" stroke="#ccc" />
+                    <YAxis stroke="#ccc" />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Line type="monotone" dataKey="savings" stroke="#4ade80" strokeWidth={2} />
                     </LineChart>
-                    </ResponsiveContainer>
+                </ResponsiveContainer>
                 </Card.Body>
-                </Card>
+            </Card>
             </Col>
-            </Row>
+        </Row>
 
-            <Row className="justify-content-center">
+        <Row className="justify-content-center">
             <Col md={6}>
-                <Card bg="dark" text="light" className="shadow">
+            <Card style={cardStyle} text="light" className="glass-card rounded-4">
                 <Card.Body>
-                    <Card.Title>Spending by Category (Pie Chart)</Card.Title>
-                    <ResponsiveContainer width="100%" height={250}>
+                <Card.Title>Spending by Category (Pie Chart)</Card.Title>
+                <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
-                        <Pie
+                    <Pie
                         data={pieData}
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
                         cy="50%"
                         outerRadius={80}
-                        fill="#8884d8"
                         label
-                        >
+                    >
                         {pieData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                        <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
                         ))}
-                        </Pie>
-                        <Tooltip content={<CustomTooltip />} />
+                    </Pie>
+                    <Tooltip content={<CustomTooltip />} />
                     </PieChart>
-                    </ResponsiveContainer>
+                </ResponsiveContainer>
                 </Card.Body>
-                </Card>
+            </Card>
             </Col>
-            </Row>
+        </Row>
         </Container>
-        </div>
-    </Container>
+    </div>
   );
 }
 

@@ -1,5 +1,5 @@
 // src/pages/AccountDetail.jsx
-import React from "react";
+import React, { useState } from "react";
 import { useParams } from "react-router-dom";
 import { Tabs, Tab, Card } from "react-bootstrap";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
@@ -63,11 +63,23 @@ const mockAccounts = {
     },
   },
 };
+const cardStyle = {
+  background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))",
+  backdropFilter: "blur(30px)",
+  WebkitBackdropFilter: "blur(30px)",
+  borderRadius: "2rem",
+  border: "1px solid rgba(255, 255, 255, 0.15)",
+  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6)",
+  color: "#fff",
+  padding: "1.5rem",
+};
 
 export default function AccountDetail() {
   const { accountName } = useParams();
   const decodedName = decodeURIComponent(accountName);
   const account = mockAccounts[decodedName];
+
+  const [activeTab, setActiveTab] = useState(Object.keys(account?.monthlyTransactions || {})[0]);
 
   if (!account) {
     return <div className="text-center text-light mt-5">Account not found.</div>;
@@ -80,44 +92,59 @@ export default function AccountDetail() {
       <h1 className="mb-4 text-center">{decodedName}</h1>
 
       <Tabs
-        defaultActiveKey={Object.keys(account.monthlyTransactions)[0]}
-        className="mb-4"
+        id="account-tabs"
+        activeKey={activeTab}
+        onSelect={(k) => setActiveTab(k)}
+        className="glass-card mb-4 justify-content-center p-2 rounded-4"
         variant="pills"
-        justify
-        style={{
-          backgroundColor: "#1f2937",
-          borderRadius: "0.5rem",
-          padding: "0.5rem",
-        }}
-      >
+        style={cardStyle}
+        >
         {Object.entries(account.monthlyTransactions).map(
-          ([month, { spent, saved, transactions }]) => (
+            ([month, { spent, saved, transactions }]) => (
             <Tab
-              eventKey={month}
-              title={
-                <span className="text-light" style={{ fontWeight: "bold" }}>
-                  {month}
-                </span>
-              }
-              key={month}
+                eventKey={month}
+                title={month}
+                key={month}
+                tabClassName={
+                    activeTab === month
+                    ? "bg-white text-dark fw-bold rounded-pill px-4 py-2"
+                    : "text-light fw-semibold rounded-pill px-4 py-2"
+                }
             >
               <div className="row mb-4">
                 <div className="col-md-6">
-                  <Card bg="dark" text="light" className="shadow">
-                    <Card.Body>
-                      <Card.Title>{month} Summary</Card.Title>
-                      <Card.Text>
-                        Balance: <strong>${account.balance}</strong>
-                      </Card.Text>
-                      <Card.Text>Spent: ${spent}</Card.Text>
-                      <Card.Text>Saved: ${saved}</Card.Text>
+                  <Card
+                    style={cardStyle}
+                    text="light"
+                    className="glass-card rounded-4 shadow mb-3 mb-md-0"
+                  >
+                    <Card.Body className="d-flex flex-column justify-content-start">
+                      <Card.Title className="fs-5 mb-3">{month} Summary</Card.Title>
+                        <ResponsiveContainer width="100%" height={250}>
+                        <div className="fs-4">
+                            <p>
+                            <strong>Balance:</strong> ${account.balance}
+                            </p>
+                            <p>
+                            <strong>Spent:</strong> ${spent}
+                            </p>
+                            <p>
+                            <strong>Saved:</strong> ${saved}
+                            </p>
+                        </div>
+                      </ResponsiveContainer>
                     </Card.Body>
                   </Card>
                 </div>
+
                 <div className="col-md-6">
-                  <Card bg="dark" text="light" className="shadow">
+                  <Card
+                    style={cardStyle}
+                    text="light"
+                    className="glass-card rounded-4 shadow h-100"
+                  >
                     <Card.Body>
-                      <Card.Title>Spending Breakdown</Card.Title>
+                      <Card.Title className="fs-5 mb-3">Spending Breakdown</Card.Title>
                       <ResponsiveContainer width="100%" height={250}>
                         <PieChart>
                           <Pie
@@ -144,10 +171,14 @@ export default function AccountDetail() {
                 </div>
               </div>
 
-              <Card bg="dark" text="light" className="shadow">
+              <Card
+                style={cardStyle}
+                text="light"
+                className="glass-card rounded-4 shadow"
+              >
                 <Card.Body>
-                  <Card.Title>{month} Transactions</Card.Title>
-                  <Table striped bordered hover variant="dark" responsive className="mt-3">
+                  <Card.Title className="fs-5">{month} Transactions</Card.Title>
+                  <Table striped bordered hover variant="dark" responsive className="mt-3 rounded-4">
                     <thead>
                       <tr>
                         <th>Date</th>
@@ -182,3 +213,7 @@ export default function AccountDetail() {
     </div>
   );
 }
+
+
+
+

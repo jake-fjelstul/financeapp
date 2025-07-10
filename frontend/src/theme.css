@@ -1,0 +1,75 @@
+/* src/theme.css */
+:root {
+  --bg-dark: #0d0d0d;
+  --card-dark: #1a1a1a;
+  --accent: #34d399;
+  --danger: #f87171;
+  --text-light: #f0f0f0;
+  --border-light: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: radial-gradient(ellipse at top left, #0c0c0c, #111); /* Optional: dark background */
+  color: white; /* Optional: default text color */
+}
+
+.glass-box {
+  background: var(--card-dark);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border-light);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.accent {
+  color: var(--accent);
+}
+
+.danger {
+  color: var(--danger);
+}
+
+/* theme.css */
+.glass-card {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+}
+
+.nav-underline {
+  position: relative;
+  transition: color 0.2s ease-in-out;
+}
+
+.nav-underline::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  width: 60%;
+  height: 2px;
+  background-color: white;
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+  border-radius: 1px;
+}
+
+.nav-underline:hover::after {
+  transform: scaleX(1);
+}

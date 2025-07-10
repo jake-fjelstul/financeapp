@@ -21,7 +21,7 @@ function AppRoutes() {
   const { user } = useAuth();
 
   return (
-    <>
+    <div style={{ minHeight: "100vh", backgroundColor: "#1a1a1a" }}>
       <Navbar />
       <Routes>
         <Route path="/" element={<Landing />} />
@@ -68,7 +68,7 @@ function AppRoutes() {
           }
         />
       </Routes>
-    </>
+    </div>
   );
 }
 
@@ -76,7 +76,7 @@ export default function App() {
   return (
     <AuthProvider>
       <Router>
-        <div style={{ backgroundColor: "#121212", minHeight: "100vh" }}>
+        <div style={{ backgroundColor: "#1a1a1a", minHeight: "100vh" }}>
           <AppRoutes />
         </div>
       </Router>

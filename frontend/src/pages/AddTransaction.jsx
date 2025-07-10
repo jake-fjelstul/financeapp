@@ -31,13 +31,28 @@ export default function AddTransaction() {
     console.log("Submitted Transaction:", formData);
     // TODO: Send formData to backend
   };
+  const cardStyle = {
+  background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))",
+  backdropFilter: "blur(30px)",
+  WebkitBackdropFilter: "blur(30px)",
+  borderRadius: "2rem",
+  border: "1px solid rgba(255, 255, 255, 0.15)",
+  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6)",
+  color: "#fff",
+  padding: "1.5rem",
+};
 
   return (
     <Container className="py-5 d-flex justify-content-center">
-      <Card bg="dark" text="light" className="p-4 shadow-lg" style={{ maxWidth: "600px", width: "100%" }}>
+      <Card
+        style={cardStyle}
+        className="glass-card text-light shadow-lg p-4"
+      >
         <Card.Body>
-          <Card.Title className="mb-4 text-center fs-3">Add New Transaction</Card.Title>
-          <Form onSubmit={handleSubmit} className="space-y-3">
+          <Card.Title className="mb-4 text-center fs-3">
+            Add New Transaction
+          </Card.Title>
+          <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="title">
               <Form.Label>Title</Form.Label>
               <Form.Control
@@ -70,7 +85,11 @@ export default function AddTransaction() {
               <Col md={6}>
                 <Form.Group className="mb-3" controlId="type">
                   <Form.Label>Type</Form.Label>
-                  <Form.Select name="type" value={formData.type} onChange={handleChange}>
+                  <Form.Select
+                    name="type"
+                    value={formData.type}
+                    onChange={handleChange}
+                  >
                     <option value="expense">Expense</option>
                     <option value="income">Income</option>
                     <option value="transfer">Transfer</option>
@@ -91,18 +110,18 @@ export default function AddTransaction() {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="account">
-                <Form.Label>Account</Form.Label>
-                <Form.Select
-                    name="account"
-                    value={formData.account}
-                    onChange={handleChange}
-                    required
-                >
-                    <option value="">Select an account</option>
-                    <option value="Checking">Checking</option>
-                    <option value="Savings">Savings</option>
-                    <option value="Investing">Investing</option>
-                </Form.Select>
+              <Form.Label>Account</Form.Label>
+              <Form.Select
+                name="account"
+                value={formData.account}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select an account</option>
+                <option value="Checking">Checking</option>
+                <option value="Savings">Savings</option>
+                <option value="Investing">Investing</option>
+              </Form.Select>
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="date">
@@ -128,7 +147,7 @@ export default function AddTransaction() {
             </Form.Group>
 
             <div className="d-grid">
-              <Button variant="outline-light" type="submit" size="lg">
+              <Button variant="outline-light" type="submit" size="lg" className="w-100 rounded-pill">
                 Submit Transaction
               </Button>
             </div>
