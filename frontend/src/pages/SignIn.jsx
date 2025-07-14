@@ -11,14 +11,19 @@ export default function SignIn() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!username.trim() || !password.trim()) {
       setError("Please enter both username and password.");
       return;
     }
-    login(username.trim());
-    navigate("/dashboard");
+
+    try {
+      await login(username.trim(), password.trim());
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Login failed. Check credentials.");
+    }
   };
 
   const cardStyle = {

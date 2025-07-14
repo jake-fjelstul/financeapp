@@ -1,5 +1,6 @@
 // src/pages/AddTransaction.jsx
 import React, { useState } from "react";
+import axios from "../axios";
 import {
   Form,
   Button,
@@ -26,10 +27,45 @@ export default function AddTransaction() {
     setFormData((data) => ({ ...data, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitted Transaction:", formData);
-    // TODO: Send formData to backend
+
+    try {
+      console.log("Token being sent:", localStorage.getItem("token"));
+      const response = await axios.fetch("/api/transactions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          ...formData,
+          title: formData.title.trim(),
+          category: formData.category.trim(),
+          notes: formData.notes.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add transaction");
+      }
+
+      const result = await response.json();
+      console.log("Backend response:", result);
+
+      // Reset the form
+      setFormData({
+        title: "",
+        amount: "",
+        type: "expense",
+        category: "",
+        account: "",
+        date: "",
+        notes: "",
+      });
+    } catch (error) {
+      console.error("Error submitting transaction:", error);
+    }
   };
   const cardStyle = {
   background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))",

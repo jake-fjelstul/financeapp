@@ -48,7 +48,7 @@ export default function AppNavbar() {
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" className="bg-light" />
         <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
+          <Nav className="me-auto align-items-center">
             {user && (
               <>
                 <Nav.Link as={Link} to="/dashboard" className="nav-underline text-white px-3">
@@ -58,7 +58,7 @@ export default function AppNavbar() {
                   Accounts
                 </Nav.Link>
                 <Nav.Link as={Link} to="/add" className="nav-underline text-white px-3">
-                  Add Transaction
+                  Transaction
                 </Nav.Link>
                 <Nav.Link as={Link} to="/planning" className="nav-underline text-white px-3">
                   Planning
@@ -66,7 +66,7 @@ export default function AppNavbar() {
               </>
             )}
           </Nav>
-          <Nav>
+          <Nav className="align-items-center gap-2 mt-3 mt-lg-0">
             {!user ? (
               <>
                 <Nav.Link as={Link} to="/signin" className="nav-underline text-white px-3 rounded-pill">
@@ -79,7 +79,7 @@ export default function AppNavbar() {
             ) : (
               <>
                 <Navbar.Text className="me-3 text-white">
-                  Signed in as: {user.username}
+                  Signed in as: {user.username || user.email}
                 </Navbar.Text>
                 <Button
                   variant="outline-light"
@@ -89,6 +89,9 @@ export default function AppNavbar() {
                 >
                   Log Out
                 </Button>
+                <Nav.Link as={Link} to="/settings" className="nav-underline text-white px-3">
+                  ⚙️
+                </Nav.Link>
               </>
             )}
           </Nav>

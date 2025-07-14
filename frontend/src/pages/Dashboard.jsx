@@ -1,5 +1,5 @@
-// src/pages/Dashboard.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
+import axios from "../axios";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import {
   BarChart,
@@ -25,8 +25,8 @@ const CustomTooltip = ({ active, payload, label }) => {
         borderRadius: "10px",
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)"
       }}>
-        <p className="mb-1 fw-bold">{label}</p>
-        <p className="mb-0">${payload[0].value}</p>
+        <p className="mb-1 fw-bold">{payload[0].name}</p>
+        <p className="mb-0">${payload[0].value.toFixed(2)}</p>
       </div>
     );
   }
@@ -34,149 +34,213 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function Dashboard() {
-  const barData = [
-    { name: "2021", balance: 5200 },
-    { name: "2022", balance: 6800 },
-    { name: "2023", balance: 7800 },
-  ];
-  const barColors = ["#60a5fa", "#f472b6", "#4ade80"];
+  const [transactions, setTransactions] = useState([]);
+  const [totalBalance, setTotalBalance] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [totalSavings, setTotalSavings] = useState(0);
+  const [categoryData, setCategoryData] = useState([]);
+  const [yearlyData, setYearlyData] = useState([]);
+  const [monthlySavings, setMonthlySavings] = useState([]);
+  const currentYear = new Date().getFullYear();
 
-  const lineData = [
-    { month: "Jan", savings: 300 },
-    { month: "Feb", savings: 450 },
-    { month: "Mar", savings: 700 },
-    { month: "Apr", savings: 600 },
-  ];
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const token = localStorage.getItem("token");
 
-  const pieData = [
-    { name: "Personal", value: 500 },
-    { name: "Travel", value: 300 },
-    { name: "Food", value: 200 },
-  ];
+        const res = await axios.get("/api/transactions", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-  const pieColors = ["#0d6efd", "#6610f2", "#198754"];
+        const data = res.data;
+        setTransactions(data);
+
+        let balance = 0;
+        let expenses = 0;
+        let income = 0;
+
+        const categoryMap = {};
+        const yearMap = {};
+        const monthlyMap = {};
+
+        const currentYear = new Date().getFullYear();
+
+        data.forEach((t) => {
+          const amount = parseFloat(t.amount);
+          const date = new Date(t.date);
+          const year = date.getFullYear();
+          const month = date.toLocaleString("default", { month: "short" });
+
+          if (t.type === "income") {
+            income += amount;
+            balance += amount;
+          } else if (t.type === "expense") {
+            expenses += amount;
+            balance -= amount;
+          }
+
+          if (year === currentYear) {
+            if (t.type === "expense") {
+              const cat = t.category || "Uncategorized";
+              categoryMap[cat] = (categoryMap[cat] || 0) + amount;
+            }
+
+            if (t.type === "income") {
+              monthlyMap[month] = (monthlyMap[month] || 0) + amount;
+            }
+          }
+
+          yearMap[year] = (yearMap[year] || 0) + (t.type === "income" ? amount : -amount);
+        });
+
+        setTotalBalance(balance);
+        setTotalExpenses(expenses);
+        setTotalSavings(income);
+
+        setCategoryData(
+          Object.entries(categoryMap).map(([name, value]) => ({
+            name,
+            value: parseFloat(value.toFixed(2)),
+          }))
+        );
+        setYearlyData(Object.entries(yearMap).map(([year, value]) => ({ name: year, value })));
+        setMonthlySavings(Object.entries(monthlyMap).map(([month, value]) => ({ month, savings: value })));
+      } catch (err) {
+        console.error("Failed to fetch transactions:", err);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+  const pieColors = ["#0d6efd", "#6610f2", "#198754", "#eab308", "#f97316", "#ec4899"];
+  const barColors = ["#60a5fa", "#4ade80", "#f472b6"];
 
   const cardStyle = {
-  background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))",
-  backdropFilter: "blur(30px)",
-  WebkitBackdropFilter: "blur(30px)",
-  borderRadius: "2rem",
-  border: "1px solid rgba(255, 255, 255, 0.15)",
-  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6)",
-  color: "#fff",
-  padding: "1.5rem",
-};
+    background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))",
+    backdropFilter: "blur(30px)",
+    WebkitBackdropFilter: "blur(30px)",
+    borderRadius: "2rem",
+    border: "1px solid rgba(255, 255, 255, 0.15)",
+    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6)",
+    color: "#fff",
+    padding: "1.5rem",
+  };
 
   return (
-    <div
-      className="container py-4"
-      style={{
-        minHeight: "100vh",
-      }}
-    >
-        <Container fluid style={{minHeight: "100vh", color: "white", paddingTop: "2rem" }}>
+    <div className="container py-4" style={{ minHeight: "100vh" }}>
+      <Container fluid style={{ minHeight: "100vh", color: "white", paddingTop: "2rem" }}>
         <h1 className="mb-5 text-center">Dashboard Overview</h1>
 
+        {/* Totals */}
         <Row className="mb-4">
-            <Col md={4} className="mb-4 mb-md-0">
+          <Col md={4} className="mb-4 mb-md-0">
             <Card style={cardStyle} text="light" className="glass-card rounded-4 text-center">
-                <Card.Body>
+              <Card.Body>
                 <Card.Title>Total Balance</Card.Title>
-                <Card.Text className="fs-3 text-center">$7,800</Card.Text>
-                </Card.Body>
+                <Card.Text className="fs-3 text-center">${totalBalance.toFixed(2)}</Card.Text>
+              </Card.Body>
             </Card>
-            </Col>
-            <Col md={4} className="mb-4 mb-md-0">
-            <Card style={cardStyle} text="light" className=" glass-card rounded-4 text-center">
-                <Card.Body>
-                <Card.Title>Total Expenses</Card.Title>
-                <Card.Text className="fs-3 text-center">$1,200</Card.Text>
-                </Card.Body>
-            </Card>
-            </Col>
-            <Col md={4}>
+          </Col>
+          <Col md={4} className="mb-4 mb-md-0">
             <Card style={cardStyle} text="light" className="glass-card rounded-4 text-center">
-                <Card.Body>
-                <Card.Title>Total Savings</Card.Title>
-                <Card.Text className="fs-3 text-center">$3,400</Card.Text>
-                </Card.Body>
+              <Card.Body>
+                <Card.Title>Total Expenses</Card.Title>
+                <Card.Text className="fs-3 text-center">${totalExpenses.toFixed(2)}</Card.Text>
+              </Card.Body>
             </Card>
-            </Col>
+          </Col>
+          <Col md={4}>
+            <Card style={cardStyle} text="light" className="glass-card rounded-4 text-center">
+              <Card.Body>
+                <Card.Title>Total Income</Card.Title>
+                <Card.Text className="fs-3 text-center">${totalSavings.toFixed(2)}</Card.Text>
+              </Card.Body>
+            </Card>
+          </Col>
         </Row>
 
+        {/* Charts */}
         <Row className="mb-4">
-            <Col md={6}>
+          <Col md={6}>
             <Card style={cardStyle} text="light" className="glass-card rounded-4 mb-4 mb-md-0">
-                <Card.Body>
-                <Card.Title>Yearly Balance (Bar Chart)</Card.Title>
-                <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={barData}>
-                    <XAxis dataKey="name" stroke="#ccc" />
-                    <YAxis stroke="#ccc" />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Bar dataKey="balance" radius={[4, 4, 0, 0]}>
-                        {barData.map((entry, index) => (
-                        <Cell key={`bar-${index}`} fill={barColors[index % barColors.length]} />
+              <Card.Body>
+                <Card.Title>Yearly Balance </Card.Title>
+                {yearlyData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={yearlyData}>
+                      <XAxis dataKey="name" stroke="#ccc" />
+                      <YAxis stroke="#ccc" />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                        {yearlyData.map((_, index) => (
+                          <Cell key={index} fill={barColors[index % barColors.length]} />
                         ))}
-                    </Bar>
+                      </Bar>
                     </BarChart>
-                </ResponsiveContainer>
-                </Card.Body>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-center mt-4">No yearly data available.</p>
+                )}
+              </Card.Body>
             </Card>
-            </Col>
+          </Col>
 
-            <Col md={6}>
+          <Col md={6}>
             <Card style={cardStyle} text="light" className="glass-card rounded-4">
-                <Card.Body>
-                <Card.Title>Monthly Savings (Line Chart)</Card.Title>
-                <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={lineData}>
-                    <XAxis dataKey="month" stroke="#ccc" />
-                    <YAxis stroke="#ccc" />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line type="monotone" dataKey="savings" stroke="#4ade80" strokeWidth={2} />
+              <Card.Body>
+                <Card.Title>Monthly Savings ({currentYear})</Card.Title>
+                {monthlySavings.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={monthlySavings}>
+                      <XAxis dataKey="month" stroke="#ccc" />
+                      <YAxis stroke="#ccc" />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Line type="monotone" dataKey="savings" stroke="#4ade80" strokeWidth={2} />
                     </LineChart>
-                </ResponsiveContainer>
-                </Card.Body>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-center mt-4">No monthly income data yet.</p>
+                )}
+              </Card.Body>
             </Card>
-            </Col>
+          </Col>
         </Row>
 
-        <Row className="justify-content-center">
-            <Col md={6}>
+        <Row className="justify-content-center mt-4">
+          <Col md={6}>
             <Card style={cardStyle} text="light" className="glass-card rounded-4">
-                <Card.Body>
-                <Card.Title>Spending by Category (Pie Chart)</Card.Title>
-                <ResponsiveContainer width="100%" height={250}>
+              <Card.Body>
+                <Card.Title>Spending by Category</Card.Title>
+                {categoryData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={250}>
                     <PieChart>
-                    <Pie
-                        data={pieData}
+                      <Pie
+                        data={categoryData}
                         dataKey="value"
                         nameKey="name"
                         cx="50%"
                         cy="50%"
                         outerRadius={80}
                         label
-                    >
-                        {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                      >
+                        {categoryData.map((_, index) => (
+                          <Cell key={index} fill={pieColors[index % pieColors.length]} />
                         ))}
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
                     </PieChart>
-                </ResponsiveContainer>
-                </Card.Body>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-center mt-4">No category breakdown yet.</p>
+                )}
+              </Card.Body>
             </Card>
-            </Col>
+          </Col>
         </Row>
-        </Container>
+      </Container>
     </div>
   );
 }
-
-
-
-
-
-
-

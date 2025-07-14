@@ -1,8 +1,8 @@
- // src/pages/SignUp.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Card, Container, Alert } from "react-bootstrap";
 import { useAuth } from "../context/UserContext";
+import axios from "../axios";
 
 export default function SignUp() {
   const { setUser } = useAuth();
@@ -11,15 +11,39 @@ export default function SignUp() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!username || !password) {
+    setError("");
+
+    if (!username.trim() || !password.trim()) {
       setError("Please enter a username and password.");
       return;
     }
-    localStorage.setItem("user", JSON.stringify({ username }));
-    setUser({ username });
-    navigate("/dashboard");
+
+    try {
+      const res = await axios.fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: username.trim(),
+          password: password.trim(),
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Registration failed.");
+      }
+
+      const data = await res.json();
+      const token = data.token;
+
+      localStorage.setItem("token", token); // Save JWT
+      setUser({ username: username.trim() }); // Update frontend state
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Sign up error:", err);
+      setError("Sign up failed. Try a different username.");
+    }
   };
 
   const cardStyle = {
@@ -41,10 +65,10 @@ export default function SignUp() {
           {error && <Alert variant="danger">{error}</Alert>}
           <Form onSubmit={handleSubmit}>
             <Form.Group className="mb-3" controlId="signupUsername">
-              <Form.Label>Username</Form.Label>
+              <Form.Label>Email</Form.Label>
               <Form.Control
-                type="text"
-                placeholder="Enter username"
+                type="email"
+                placeholder="Enter email"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
               />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import {
@@ -10,28 +10,58 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import axios from "../axios";
 
 export default function Accounts() {
-  const accounts = [
-    {
-      name: "Checking Account",
-      balance: 4800,
-      monthlyCost: 1200,
-      monthlySavings: 600,
-    },
-    {
-      name: "Savings Account",
-      balance: 8700,
-      monthlySavings: 400,
-    },
-    {
-      name: "Investing Account",
-      balance: 12500,
-      portfolioValue: 13200,
-    },
-  ];
+  const [accountSummaries, setAccountSummaries] = useState([]);
 
-  const chartData = accounts.map((acc) => ({
+  const capitalize = (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("/api/transactions", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = res.data;
+
+        const accounts = {
+          Checking: { name: "Checking Account", balance: 0, expenses: 0, savings: 0 },
+          Savings: { name: "Savings Account", balance: 0, expenses: 0, savings: 0 },
+          Investing: { name: "Investing Account", balance: 0, expenses: 0, savings: 0 },
+        };
+
+        data.forEach((t) => {
+          const account = capitalize(t.account?.trim() || "");
+          const amount = parseFloat(t.amount);
+          if (!accounts[account]) return;
+
+          if (t.type === "income") {
+            accounts[account].balance += amount;
+            accounts[account].savings += amount;
+          } else if (t.type === "expense") {
+            accounts[account].balance -= amount;
+            accounts[account].expenses += amount;
+          }
+        });
+
+        setAccountSummaries(Object.entries(accounts).map(([key, value]) => ({ ...value, key })));
+      } catch (err) {
+        console.error("Failed to load transactions:", err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const chartData = accountSummaries.map((acc) => ({
     name: acc.name,
     balance: acc.balance,
   }));
@@ -39,27 +69,22 @@ export default function Accounts() {
   const chartColors = ["#60a5fa", "#4ade80", "#f472b6"];
 
   const glassStyle = {
-  background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))",
-  backdropFilter: "blur(30px)",
-  WebkitBackdropFilter: "blur(30px)",
-  borderRadius: "2rem",
-  border: "1px solid rgba(255, 255, 255, 0.15)",
-  boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6)",
-  color: "#fff",
-  padding: "1.5rem",
-};
+    background: "radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.03))",
+    backdropFilter: "blur(30px)",
+    WebkitBackdropFilter: "blur(30px)",
+    borderRadius: "2rem",
+    border: "1px solid rgba(255, 255, 255, 0.15)",
+    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6)",
+    color: "#fff",
+    padding: "1.5rem",
+  };
 
   return (
-    <div
-      className="container py-4"
-      style={{
-        minHeight: "100vh",
-      }}
-    >
+    <div className="container py-4" style={{ minHeight: "100vh" }}>
       <h1 className="mb-4 text-center text-light">Accounts Overview</h1>
 
       <div className="d-flex flex-wrap justify-content-center gap-4 mb-5">
-        {accounts.map((acc, index) => (
+        {accountSummaries.map((acc, index) => (
           <Card
             key={index}
             text="light"
@@ -70,25 +95,19 @@ export default function Accounts() {
               <div>
                 <Card.Title className="fs-4">{acc.name}</Card.Title>
                 <Card.Text>
-                  Balance: <strong>${acc.balance}</strong>
+                  Balance: <strong>${acc.balance.toFixed(2)}</strong>
                 </Card.Text>
-                {acc.monthlyCost && (
-                  <Card.Text>
-                    Monthly Cost: <strong>${acc.monthlyCost}</strong>
-                  </Card.Text>
-                )}
-                {acc.monthlySavings && (
-                  <Card.Text>
-                    Monthly Savings: <strong>${acc.monthlySavings}</strong>
-                  </Card.Text>
-                )}
-                {acc.portfolioValue && (
-                  <Card.Text>
-                    Portfolio Value: <strong>${acc.portfolioValue}</strong>
-                  </Card.Text>
-                )}
+                <Card.Text>
+                  Monthly Expenses: <strong>${acc.expenses.toFixed(2)}</strong>
+                </Card.Text>
+                <Card.Text>
+                  Monthly Savings: <strong>${acc.savings.toFixed(2)}</strong>
+                </Card.Text>
               </div>
-              <Link to={`/accounts/${encodeURIComponent(acc.name)}`} className="mt-3">
+              <Link
+                to={`/accounts/${encodeURIComponent(acc.key)}`}
+                className="mt-3"
+              >
                 <Button variant="outline-light" className="w-100 rounded-pill">
                   View Details
                 </Button>
@@ -100,25 +119,29 @@ export default function Accounts() {
 
       <div className="glass-card p-4 text-light shadow" style={glassStyle}>
         <h4 className="text-center mb-4">Account Balance Comparison</h4>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={chartData}>
-            <XAxis dataKey="name" stroke="#ccc" />
-            <YAxis stroke="#ccc" />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "#1f2937",
-                border: "none",
-                borderRadius: "10px",
-                color: "#f9fafb",
-              }}
-            />
-            <Bar dataKey="balance" radius={[6, 6, 0, 0]}>
-              {chartData.map((_, index) => (
-                <Cell key={index} fill={chartColors[index % chartColors.length]} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+        {chartData.length > 0 ? (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={chartData}>
+              <XAxis dataKey="name" stroke="#ccc" />
+              <YAxis stroke="#ccc" />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "#1f2937",
+                  border: "none",
+                  borderRadius: "10px",
+                  color: "#f9fafb",
+                }}
+              />
+              <Bar dataKey="balance" radius={[6, 6, 0, 0]}>
+                {chartData.map((_, index) => (
+                  <Cell key={index} fill={chartColors[index % chartColors.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <p className="text-center mt-3">No data available.</p>
+        )}
       </div>
     </div>
   );

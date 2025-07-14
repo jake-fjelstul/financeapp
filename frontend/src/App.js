@@ -7,10 +7,11 @@ import AddTransaction from "./pages/AddTransaction";
 import AccountDetail from "./pages/AccountDetail";
 import Planning from "./pages/Planning";
 import SignIn from "./pages/SignIn";
+import SignUp from "./pages/SignUp";
 import Landing from "./pages/Landing";
+import Settings from "./pages/Settings";
 import Navbar from "./components/Navbar";
 import { useAuth, AuthProvider } from "./context/UserContext";
-import SignUp from "./pages/SignUp";
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
@@ -67,6 +68,14 @@ function AppRoutes() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </div>
   );
@@ -74,12 +83,10 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div style={{ backgroundColor: "#1a1a1a", minHeight: "100vh" }}>
-          <AppRoutes />
-        </div>
-      </Router>
-    </AuthProvider>
+    <Router> {/* ✅ Router must come first for useNavigate to work */}
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
   );
 }

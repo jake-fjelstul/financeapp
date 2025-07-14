@@ -9,10 +9,11 @@
 }
 
 body {
+background-color: #1a1a1a !important;
   margin: 0;
   padding: 0;
+  height: 100%;
   background: radial-gradient(ellipse at top left, #0c0c0c, #111); /* Optional: dark background */
-  color: white; /* Optional: default text color */
 }
 
 .glass-box {
