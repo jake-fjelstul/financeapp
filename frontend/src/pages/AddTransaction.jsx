@@ -34,25 +34,27 @@ export default function AddTransaction() {
 
     try {
       console.log("Token being sent:", localStorage.getItem("token"));
-      const response = await axios.post(`${API_BASE_URL}/api/transactions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
+      const response = await axios.post(
+        `${API_BASE_URL}/api/transactions`,
+        {
           ...formData,
           title: formData.title.trim(),
           category: formData.category.trim(),
           notes: formData.notes.trim(),
-        }),
-      });
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to add transaction");
       }
 
-      const result = await response.json();
+      const result = response.json();
       console.log("Backend response:", result);
 
       // Reset the form
