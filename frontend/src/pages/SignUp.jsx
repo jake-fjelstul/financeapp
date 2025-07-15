@@ -24,19 +24,15 @@ export default function SignUp() {
 
     try {
       const res = await axios.post(`${API_BASE_URL}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: username.trim(),
-          password: password.trim(),
-        }),
+        email: username.trim(),
+        password: password.trim(),
       });
 
       if (!res.ok) {
         throw new Error("Registration failed.");
       }
 
-      const data = await res.json();
+      const data = res.data;
       const token = data.token;
 
       localStorage.setItem("token", token); // Save JWT
