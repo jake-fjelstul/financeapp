@@ -23,7 +23,7 @@ export default function SignUp() {
     }
 
     try {
-      const res = await axios.fetch(`${API_BASE_URL}/api/auth/register`, {
+      const res = await axios.post(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
