@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.security.Principal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -25,17 +26,17 @@ public class TransactionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Transaction>> getAllTransactions(@RequestHeader("Authorization") String authHeader) {
-        String token = extractToken(authHeader);
-        List<Transaction> transactions = transactionService.getAllTransactions(token);
+    public ResponseEntity<List<Transaction>> getAllTransactions(Principal principal) {
+        String email = principal.getName();
+        List<Transaction> transactions = transactionService.getAllTransactions(email);
         return ResponseEntity.ok(transactions);
     }
 
     @PostMapping
     public ResponseEntity<Transaction> addTransaction(@RequestBody Transaction transaction,
-                                                      @RequestHeader("Authorization") String authHeader) {
-        String token = extractToken(authHeader);
-        Transaction saved = transactionService.addTransaction(transaction, token);
+                                                      Principal principal) {
+        String email = principal.getName();
+        Transaction saved = transactionService.addTransaction(transaction, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
@@ -45,15 +46,15 @@ public class TransactionController {
     }
 
     @GetMapping("/export")
-    public ResponseEntity<List<Transaction>> exportTransactions(@RequestHeader("Authorization") String authHeader) {
-        String token = extractToken(authHeader);
-        List<Transaction> transactions = transactionService.getAllTransactions(token);
+    public ResponseEntity<List<Transaction>> exportTransactions(Principal principal) {
+        String email = principal.getName();
+        List<Transaction> transactions = transactionService.getAllTransactions(email);
         return ResponseEntity.ok(transactions);
     }
 
     @PostMapping("/import")
     public ResponseEntity<String> importTransactions(@RequestParam("file") MultipartFile file,
-                                                     @RequestHeader("Authorization") String authHeader) {
+                                                     Principal principal) {
         try {
             String filename = file.getOriginalFilename();
             List<Transaction> transactions;
@@ -65,8 +66,8 @@ public class TransactionController {
                 transactions = Arrays.asList(mapper.readValue(file.getInputStream(), Transaction[].class));
             }
 
-            String token = extractToken(authHeader);
-            transactionService.saveAll(transactions, token);
+            String email = principal.getName();
+            transactionService.saveAll(transactions, email);
             return ResponseEntity.ok("Imported successfully");
         } catch (IOException e) {
             e.printStackTrace();
@@ -133,9 +134,5 @@ public class TransactionController {
         }
 
         return transactions;
-    }
-
-    private String extractToken(String authHeader) {
-        return authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
     }
 }

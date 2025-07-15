@@ -14,21 +14,20 @@ public class TransactionService {
 
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
-    private final JwtService jwtService;
 
-    public TransactionService(TransactionRepository transactionRepository, UserRepository userRepository, JwtService jwtService) {
+    public TransactionService(TransactionRepository transactionRepository,
+                              UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
         this.userRepository = userRepository;
-        this.jwtService = jwtService;
     }
 
-    public List<Transaction> getAllTransactions(String token) {
-        User user = extractUser(token);
+    public List<Transaction> getAllTransactions(String email) {
+        User user = getUserByEmail(email);
         return transactionRepository.findByUser(user);
     }
 
-    public Transaction addTransaction(Transaction transaction, String token) {
-        User user = extractUser(token);
+    public Transaction addTransaction(Transaction transaction, String email) {
+        User user = getUserByEmail(email);
         transaction.setUser(user);
         return transactionRepository.save(transaction);
     }
@@ -41,17 +40,16 @@ public class TransactionService {
         transactionRepository.deleteById(id);
     }
 
-    public void saveAll(List<Transaction> transactions, String token) {
-        User user = extractUser(token);
+    public void saveAll(List<Transaction> transactions, String email) {
+        User user = getUserByEmail(email);
         for (Transaction t : transactions) {
             t.setUser(user);
         }
         transactionRepository.saveAll(transactions);
     }
 
-    private User extractUser(String token) {
-        String email = jwtService.extractEmail(token);
-        return userRepository.findByEmail(email).orElseThrow(() ->
-            new IllegalArgumentException("User not found for token: " + email));
+    private User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found for email: " + email));
     }
 }
