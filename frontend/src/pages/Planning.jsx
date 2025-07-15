@@ -20,7 +20,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import axios from "../axios";
+import axios from "axios";
 
 export default function Planning() {
   const [activeTab, setActiveTab] = useState("budget");
@@ -37,10 +37,11 @@ export default function Planning() {
   const [years, setYears] = useState(0);
   const [growthData, setGrowthData] = useState([]);
   const [finalValue, setFinalValue] = useState(0);
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
     axios
-      .get("/api/transactions", {
+      .get("${API_BASE_URL}/api/transactions", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },

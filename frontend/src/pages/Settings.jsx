@@ -1,15 +1,16 @@
 // src/pages/Settings.jsx
 import React, { useState, useRef } from "react";
-import axios from "../axios";
+import axios from "axios";
 import { Card, Button, Container, Form } from "react-bootstrap";
 
 export default function Settings() {
   const fileInputRef = useRef();
   const [selectedFile, setSelectedFile] = useState(null);
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   const handleExport = async () => {
     try {
-        const response = await fetch("/api/transactions", {
+        const response = await fetch(`${API_BASE_URL}/api/transactions`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },

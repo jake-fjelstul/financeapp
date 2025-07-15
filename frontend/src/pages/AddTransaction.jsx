@@ -1,6 +1,6 @@
 // src/pages/AddTransaction.jsx
 import React, { useState } from "react";
-import axios from "../axios";
+import axios from "axios";
 import {
   Form,
   Button,
@@ -27,12 +27,14 @@ export default function AddTransaction() {
     setFormData((data) => ({ ...data, [name]: value }));
   };
 
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       console.log("Token being sent:", localStorage.getItem("token"));
-      const response = await axios.fetch("/api/transactions", {
+      const response = await axios.fetch(`${API_BASE_URL}/api/transactions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

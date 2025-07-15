@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "../axios";
+import axios from "axios";
 import { useParams } from "react-router-dom";
 import { Tabs, Tab, Card } from "react-bootstrap";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
@@ -15,12 +15,13 @@ export default function AccountDetail() {
 
   const [selectedYear, setSelectedYear] = useState("All");
   const [allYears, setAllYears] = useState([]);
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     axios
-      .get("/api/transactions", {
+      .get(`${API_BASE_URL}/api/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

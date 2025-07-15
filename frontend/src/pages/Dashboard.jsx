@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "../axios";
+import axios from "axios";
 import { Container, Row, Col, Card } from "react-bootstrap";
 import {
   BarChart,
@@ -42,13 +42,14 @@ export default function Dashboard() {
   const [yearlyData, setYearlyData] = useState([]);
   const [monthlySavings, setMonthlySavings] = useState([]);
   const currentYear = new Date().getFullYear();
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
         const token = localStorage.getItem("token");
 
-        const res = await axios.get("/api/transactions", {
+        const res = await axios.get(`${API_BASE_URL}/api/transactions`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

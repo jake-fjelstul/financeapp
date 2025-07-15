@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import axios from "../axios";
+import axios from "axios";
 
 export default function Accounts() {
   const [accountSummaries, setAccountSummaries] = useState([]);
@@ -20,11 +20,13 @@ export default function Accounts() {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await axios.get("/api/transactions", {
+        const res = await axios.get(`${API_BASE_URL}/api/transactions`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

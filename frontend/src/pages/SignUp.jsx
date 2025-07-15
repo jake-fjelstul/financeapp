@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Button, Card, Container, Alert } from "react-bootstrap";
 import { useAuth } from "../context/UserContext";
-import axios from "../axios";
+import axios from "axios";
 
 export default function SignUp() {
   const { setUser } = useAuth();
@@ -10,6 +10,8 @@ export default function SignUp() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +23,7 @@ export default function SignUp() {
     }
 
     try {
-      const res = await axios.fetch("/api/auth/register", {
+      const res = await axios.fetch(`${API_BASE_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
