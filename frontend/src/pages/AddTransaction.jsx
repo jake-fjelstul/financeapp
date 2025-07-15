@@ -51,7 +51,7 @@ export default function AddTransaction() {
       );
 
       
-      console.log("Backend response:", result);
+      // console.log("Backend response:");
 
       // Reset the form
       setFormData({
