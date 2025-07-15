@@ -10,7 +10,7 @@ export default function Settings() {
 
   const handleExport = async () => {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/transactions`, {
+        const response = await post(`${API_BASE_URL}/api/transactions`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
@@ -53,7 +53,7 @@ export default function Settings() {
         formData.append("file", selectedFile);
 
         try {
-            await axios.post("/api/transactions/import", formData, {
+            await axios.post(`${API_BASE_URL}/api/transactions/import`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                     Authorization: `Bearer ${localStorage.getItem("token")}`,

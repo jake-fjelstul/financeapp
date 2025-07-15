@@ -34,7 +34,7 @@ export default function AddTransaction() {
 
     try {
       console.log("Token being sent:", localStorage.getItem("token"));
-      const response = await axios.fetch(`${API_BASE_URL}/api/transactions`, {
+      const response = await axios.post(`${API_BASE_URL}/api/transactions`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
