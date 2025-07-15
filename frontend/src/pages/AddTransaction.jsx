@@ -50,11 +50,7 @@ export default function AddTransaction() {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to add transaction");
-      }
-
-      const result = response.json();
+      
       console.log("Backend response:", result);
 
       // Reset the form
