@@ -10,12 +10,12 @@ export default function Settings() {
 
   const handleExport = async () => {
     try {
-        const response = await post(`${API_BASE_URL}/api/transactions`, {
+        const response = await axios.get(`${API_BASE_URL}/api/transactions`, {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
         });
-        const data = await response.json();
+        const data = response.json();
 
         if (!data.length) {
         alert("No transactions to export.");
