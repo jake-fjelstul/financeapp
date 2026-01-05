@@ -8,7 +8,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
-serviceWorkerRegistration.register(); // ✅ enables offline + installable
+
+// Only register service worker in production
+if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  serviceWorkerRegistration.register();
+} else {
+  // Unregister service worker in development to avoid errors
+  serviceWorkerRegistration.unregister();
+}
+
 root.render(
   <React.StrictMode>
     <AuthProvider>

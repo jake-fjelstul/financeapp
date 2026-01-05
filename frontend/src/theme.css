@@ -48,8 +48,14 @@ background-color: #1a1a1a !important;
 }
 
 .glass-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+  transform: scale(1.01) translateY(-2px);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
+}
+
+/* Specific hover animation for transaction card in account details */
+.transaction-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
 }
 
 .nav-underline {

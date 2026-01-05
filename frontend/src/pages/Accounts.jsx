@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -9,11 +9,13 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
+  ReferenceLine,
 } from "recharts";
 import axios from "axios";
 
 export default function Accounts() {
   const [accountSummaries, setAccountSummaries] = useState([]);
+  const navigate = useNavigate();
 
   const capitalize = (str) => {
     if (!str) return "";
@@ -90,8 +92,22 @@ export default function Accounts() {
           <Card
             key={index}
             text="light"
-            style={{ width: "22rem", ...glassStyle }}
+            style={{ 
+              width: "22rem", 
+              ...glassStyle,
+              cursor: "pointer",
+              transition: "transform 0.2s, box-shadow 0.2s"
+            }}
             className="glass-card shadow"
+            onClick={() => navigate(`/accounts/${encodeURIComponent(acc.key)}`)}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-4px)";
+              e.currentTarget.style.boxShadow = "0 15px 50px rgba(0, 0, 0, 0.7)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "translateY(0)";
+              e.currentTarget.style.boxShadow = "0 10px 40px rgba(0, 0, 0, 0.6)";
+            }}
           >
             <Card.Body className="d-flex flex-column justify-content-between">
               <div>
@@ -109,6 +125,7 @@ export default function Accounts() {
               <Link
                 to={`/accounts/${encodeURIComponent(acc.key)}`}
                 className="mt-3"
+                onClick={(e) => e.stopPropagation()}
               >
                 <Button variant="outline-light" className="w-100 rounded-pill">
                   View Details
@@ -134,6 +151,14 @@ export default function Accounts() {
                   color: "#f9fafb",
                 }}
               />
+              {chartData.some(item => item.balance < 0) && (
+                <ReferenceLine 
+                  y={0} 
+                  stroke="#ccc" 
+                  strokeDasharray="5 5" 
+                  strokeWidth={1.5}
+                />
+              )}
               <Bar dataKey="balance" radius={[6, 6, 0, 0]}>
                 {chartData.map((_, index) => (
                   <Cell key={index} fill={chartColors[index % chartColors.length]} />

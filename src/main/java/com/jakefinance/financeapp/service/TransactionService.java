@@ -40,12 +40,12 @@ public class TransactionService {
         transactionRepository.deleteById(id);
     }
 
-    public void saveAll(List<Transaction> transactions, String email) {
+    public List<Transaction> saveAll(List<Transaction> transactions, String email) {
         User user = getUserByEmail(email);
         for (Transaction t : transactions) {
             t.setUser(user);
         }
-        transactionRepository.saveAll(transactions);
+        return transactionRepository.saveAll(transactions);
     }
 
     private User getUserByEmail(String email) {

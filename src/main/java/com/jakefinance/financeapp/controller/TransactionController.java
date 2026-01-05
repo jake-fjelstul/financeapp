@@ -53,8 +53,8 @@ public class TransactionController {
     }
 
     @PostMapping("/import")
-    public ResponseEntity<String> importTransactions(@RequestParam("file") MultipartFile file,
-                                                     Principal principal) {
+    public ResponseEntity<Map<String, Object>> importTransactions(@RequestParam("file") MultipartFile file,
+                                                                   Principal principal) {
         try {
             String filename = file.getOriginalFilename();
             List<Transaction> transactions;
@@ -66,12 +66,39 @@ public class TransactionController {
                 transactions = Arrays.asList(mapper.readValue(file.getInputStream(), Transaction[].class));
             }
 
+            if (transactions.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of(
+                        "error", "No valid transactions found in file",
+                        "imported", 0,
+                        "details", "Please check that your file contains valid data with the required columns (Amount, Type, Account)."
+                    ));
+            }
+
             String email = principal.getName();
-            transactionService.saveAll(transactions, email);
-            return ResponseEntity.ok("Imported successfully");
+            List<Transaction> saved = transactionService.saveAll(transactions, email);
+            
+            return ResponseEntity.ok(Map.of(
+                "message", "Imported successfully",
+                "imported", saved.size(),
+                "details", saved.size() + " transaction(s) were imported and saved to your account."
+            ));
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid file");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                    "error", "Invalid file: " + e.getMessage(),
+                    "imported", 0,
+                    "details", "Please check your file format and ensure it matches the required structure."
+                ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of(
+                    "error", "Import failed: " + e.getMessage(),
+                    "imported", 0,
+                    "details", "An unexpected error occurred. Please try again."
+                ));
         }
     }
 

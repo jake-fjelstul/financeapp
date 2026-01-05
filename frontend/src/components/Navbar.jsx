@@ -63,6 +63,9 @@ export default function AppNavbar() {
                 <Nav.Link as={Link} to="/planning" className="nav-underline text-white px-3">
                   Planning
                 </Nav.Link>
+                <Nav.Link as={Link} to="/recommendations" className="nav-underline text-white px-3">
+                  Products
+                </Nav.Link>
               </>
             )}
           </Nav>
@@ -79,7 +82,14 @@ export default function AppNavbar() {
             ) : (
               <>
                 <Navbar.Text className="me-3 text-white">
-                  Signed in as: {user.username || user.email}
+                  Hi, {(() => {
+                    console.log("Navbar - user object:", user);
+                    console.log("Navbar - user.firstName:", user.firstName);
+                    if (user.firstName && user.firstName.trim()) {
+                      return user.firstName;
+                    }
+                    return user.email?.split('@')[0] || "User";
+                  })()}
                 </Navbar.Text>
                 <Button
                   variant="outline-light"

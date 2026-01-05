@@ -15,6 +15,8 @@ export default function AccountDetail() {
 
   const [selectedYear, setSelectedYear] = useState("All");
   const [allYears, setAllYears] = useState([]);
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
   const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
@@ -54,6 +56,7 @@ export default function AccountDetail() {
             id: t.id,
             date: dateObj.toLocaleDateString(),
             description: t.title,
+            category: t.category || "Uncategorized",
             amount: t.amount,
             type: t.type,
           });
@@ -83,6 +86,50 @@ export default function AccountDetail() {
     boxShadow: "0 10px 40px rgba(0, 0, 0, 0.6)",
     color: "#fff",
     padding: "1.5rem",
+  };
+
+  const handleSort = (column) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortTransactions = (transactions) => {
+    if (!sortColumn) return transactions;
+
+    const sorted = [...transactions].sort((a, b) => {
+      let aValue, bValue;
+
+      switch (sortColumn) {
+        case "date":
+          aValue = new Date(a.date);
+          bValue = new Date(b.date);
+          break;
+        case "description":
+          aValue = a.description.toLowerCase();
+          bValue = b.description.toLowerCase();
+          break;
+        case "category":
+          aValue = (a.category || "Uncategorized").toLowerCase();
+          bValue = (b.category || "Uncategorized").toLowerCase();
+          break;
+        case "amount":
+          aValue = parseFloat(a.amount);
+          bValue = parseFloat(b.amount);
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return sortDirection === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return sorted;
   };
 
   const handleDelete = async (id) => {
@@ -154,7 +201,11 @@ export default function AccountDetail() {
       <Tabs
         id="account-tabs"
         activeKey={activeTab}
-        onSelect={(k) => setActiveTab(k)}
+        onSelect={(k) => {
+          setActiveTab(k);
+          setSortColumn(null);
+          setSortDirection("asc");
+        }}
         className="glass-card mb-4 justify-content-center p-2 rounded-4"
         variant="pills"
         style={cardStyle}
@@ -237,7 +288,7 @@ export default function AccountDetail() {
               <Card
                 style={cardStyle}
                 text="light"
-                className="glass-card rounded-4 shadow"
+                className="glass-card transaction-card-hover rounded-4 shadow"
               >
                 <Card.Body>
                   <Card.Title className="fs-5">{month} Transactions</Card.Title>
@@ -251,18 +302,144 @@ export default function AccountDetail() {
                   >
                     <thead>
                       <tr>
-                        <th>Date</th>
-                        <th>Description</th>
-                        <th>Amount</th>
+                        <th>
+                          <div className="d-flex align-items-center justify-content-between">
+                            <span>Date</span>
+                            <button
+                              onClick={() => handleSort("date")}
+                              className="btn btn-sm p-1"
+                              style={{
+                                background: sortColumn === "date" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
+                                border: "1px solid rgba(255, 255, 255, 0.2)",
+                                borderRadius: "0.5rem",
+                                color: "white",
+                                cursor: "pointer",
+                                minWidth: "24px",
+                                height: "24px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.2s ease"
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                                e.currentTarget.style.transform = "scale(1.05)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = sortColumn === "date" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)";
+                                e.currentTarget.style.transform = "scale(1)";
+                              }}
+                            >
+                              <span style={{ fontSize: "0.75rem", lineHeight: 1 }}>☰</span>
+                            </button>
+                          </div>
+                        </th>
+                        <th>
+                          <div className="d-flex align-items-center justify-content-between">
+                            <span>Description</span>
+                            <button
+                              onClick={() => handleSort("description")}
+                              className="btn btn-sm p-1"
+                              style={{
+                                background: sortColumn === "description" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
+                                border: "1px solid rgba(255, 255, 255, 0.2)",
+                                borderRadius: "0.5rem",
+                                color: "white",
+                                cursor: "pointer",
+                                minWidth: "24px",
+                                height: "24px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.2s ease"
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                                e.currentTarget.style.transform = "scale(1.05)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = sortColumn === "description" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)";
+                                e.currentTarget.style.transform = "scale(1)";
+                              }}
+                            >
+                              <span style={{ fontSize: "0.75rem", lineHeight: 1 }}>☰</span>
+                            </button>
+                          </div>
+                        </th>
+                        <th>
+                          <div className="d-flex align-items-center justify-content-between">
+                            <span>Category</span>
+                            <button
+                              onClick={() => handleSort("category")}
+                              className="btn btn-sm p-1"
+                              style={{
+                                background: sortColumn === "category" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
+                                border: "1px solid rgba(255, 255, 255, 0.2)",
+                                borderRadius: "0.5rem",
+                                color: "white",
+                                cursor: "pointer",
+                                minWidth: "24px",
+                                height: "24px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.2s ease"
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                                e.currentTarget.style.transform = "scale(1.05)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = sortColumn === "category" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)";
+                                e.currentTarget.style.transform = "scale(1)";
+                              }}
+                            >
+                              <span style={{ fontSize: "0.75rem", lineHeight: 1 }}>☰</span>
+                            </button>
+                          </div>
+                        </th>
+                        <th>
+                          <div className="d-flex align-items-center justify-content-between">
+                            <span>Amount</span>
+                            <button
+                              onClick={() => handleSort("amount")}
+                              className="btn btn-sm p-1"
+                              style={{
+                                background: sortColumn === "amount" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)",
+                                border: "1px solid rgba(255, 255, 255, 0.2)",
+                                borderRadius: "0.5rem",
+                                color: "white",
+                                cursor: "pointer",
+                                minWidth: "24px",
+                                height: "24px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                transition: "all 0.2s ease"
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "rgba(255, 255, 255, 0.15)";
+                                e.currentTarget.style.transform = "scale(1.05)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = sortColumn === "amount" ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.1)";
+                                e.currentTarget.style.transform = "scale(1)";
+                              }}
+                            >
+                              <span style={{ fontSize: "0.75rem", lineHeight: 1 }}>☰</span>
+                            </button>
+                          </div>
+                        </th>
                         <th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {transactions.length > 0 ? (
-                        transactions.map((t, i) => (
+                        sortTransactions(transactions).map((t, i) => (
                           <tr key={i}>
                             <td>{t.date}</td>
                             <td>{t.description}</td>
+                            <td>{t.category}</td>
                             <td style={{ color: t.type === "expense" ? "#f87171" : "#4ade80" }}>
                               {t.type === "expense" ? "-" : "+"}${t.amount}
                             </td>
@@ -278,7 +455,7 @@ export default function AccountDetail() {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="4" className="text-center text-muted">
+                          <td colSpan="5" className="text-center text-muted">
                             No transactions this month.
                           </td>
                         </tr>

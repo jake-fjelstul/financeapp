@@ -6,6 +6,7 @@ import Accounts from "./pages/Accounts";
 import AddTransaction from "./pages/AddTransaction";
 import AccountDetail from "./pages/AccountDetail";
 import Planning from "./pages/Planning";
+import Recommendations from "./pages/Recommendations";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Landing from "./pages/Landing";
@@ -65,6 +66,14 @@ function AppRoutes() {
           element={
             <ProtectedRoute>
               <Planning />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/recommendations"
+          element={
+            <ProtectedRoute>
+              <Recommendations />
             </ProtectedRoute>
           }
         />

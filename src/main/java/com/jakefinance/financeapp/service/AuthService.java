@@ -18,13 +18,13 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User register(String email, String rawPassword) throws IllegalArgumentException {
+    public User register(String email, String rawPassword, String firstName, String lastName) throws IllegalArgumentException {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new IllegalArgumentException("Email already in use");
         }
 
         String encodedPassword = passwordEncoder.encode(rawPassword);
-        User user = new User(email, encodedPassword);
+        User user = new User(email, encodedPassword, firstName, lastName);
         return userRepository.save(user);
     }
 
