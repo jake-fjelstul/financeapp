@@ -45,7 +45,7 @@ public class SecurityConfig {
         // Use the domain provided by Vercel for your frontend
         configuration.setAllowedOrigins(Arrays.asList(
             "http://localhost:3000", 
-            "https://your-finance-tracker.vercel.app" 
+            "https://financeapphosted.vercel.app" 
         ));
         
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
